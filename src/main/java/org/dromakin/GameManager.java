@@ -19,6 +19,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -33,7 +34,7 @@ public class GameManager {
     private static final String CREATED_FILE = "Created file: {}";
 
     private GameProgress gameProgress;
-
+    private Path gamePath;
     private Path saveGameDir;
 
     private int saveCount;
@@ -48,12 +49,52 @@ public class GameManager {
         this.saveCount++;
     }
 
-    public String getFileSavePath() {
-        return Paths.get(this.saveGameDir.toString(), String.format(SAVE_FILE_DAT, saveCount)).toString();
+    protected String getFileSavePathString() {
+        return getFileSavePath().toString();
     }
 
-    public String getZipFilePath() {
-        return Paths.get(this.saveGameDir.toString(), ZIP_FILE).toString();
+    protected Path getFileSavePath() {
+        return Paths.get(this.saveGameDir.toString(), String.format(SAVE_FILE_DAT, saveCount));
+    }
+
+    public Path getGamePath() {
+        return gamePath;
+    }
+
+    protected String getZipFilePathString() {
+        return this.getZipFilePath().toString();
+    }
+
+    protected Path getZipFilePath() {
+        return Paths.get(this.saveGameDir.toString(), ZIP_FILE);
+    }
+
+    protected Path getRootPathDirectory() {
+        return Paths.get(TMP_DIR).toAbsolutePath();
+    }
+
+    public boolean isInstalled() {
+        return Files.isDirectory(Paths.get(getRootPathDirectory().toString(), GAME_DIR));
+    }
+
+    public void uninstalling() throws GameManagerException {
+        logger.info("Uninstalling Game...");
+        if (isInstalled()) {
+            try {
+                Files.walk(Paths.get(getRootPathDirectory().toString(), GAME_DIR))
+                        .sorted(Comparator.reverseOrder())
+                        .forEach(x -> {
+                            try {
+                                Files.deleteIfExists(x);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+            } catch (IOException e) {
+                throw new GameManagerException("Can't uninstalling game!");
+            }
+        }
+        logger.info("Game has removed!");
     }
 
     public void installing() throws GameManagerException {
@@ -62,7 +103,7 @@ public class GameManager {
         Path rootPath = Paths.get(TMP_DIR).toAbsolutePath();
         logger.info("Find root path: {}", rootPath);
 
-        Path gamePath = Paths.get(rootPath.toString(), GAME_DIR);
+        gamePath = Paths.get(rootPath.toString(), GAME_DIR);
         logger.info("Get Games path: {}", gamePath);
 
         // Games/
