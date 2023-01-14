@@ -41,7 +41,7 @@ public class Main {
             // zip all files in folder
             String zipFilePath = gameManager.getFileSavePathString();
             gameManager.zipFiles(zipFilePath, saveFile1, saveFile2, saveFile3);
-            gameManager.deleteFilesSaveGame();
+            gameManager.deleteFilesSaveGame(saveFile1, saveFile2, saveFile3);
 
         } catch (GameManagerException e) {
             logger.error(e.getMessage(), e);
