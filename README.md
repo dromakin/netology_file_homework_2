@@ -1,4 +1,4 @@
-# lambda-calculator
+# file_homework
 https://github.com/netology-code/jd-homeworks/blob/master/files/task2
 
 
