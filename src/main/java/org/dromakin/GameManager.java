@@ -125,6 +125,28 @@ public class GameManager {
         }
         logger.info(CREATED_DIR, saveGameDir);
 
+        Path tempDir = Paths.get(gamePath.toString(), TEMP_DIR);
+        logger.info("Get temp dir path: {}", tempDir);
+
+        try {
+            fullDir = Files.createDirectories(tempDir);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            throw new GameManagerException("Can't create temp dir with path: " + tempDir);
+        }
+        logger.info(CREATED_DIR, tempDir);
+
+        Path tempFilePath = Paths.get(tempDir.toString(), TEMP_FILE);
+        logger.info("Get temp.txt file path: {}", tempFilePath);
+
+        try {
+            fullDir = Files.createFile(tempFilePath);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            throw new GameManagerException("Can't create temp.txt with path: " + tempFilePath);
+        }
+        logger.info(CREATED_FILE, tempFilePath);
+
         // Games/src
         Path mainDir = Paths.get(srcDir.toString(), MAIN_DIR);
         logger.info("Get main dir path: {}", mainDir);
@@ -224,6 +246,19 @@ public class GameManager {
         logger.info("Game progress saved!");
     }
 
+    public void deleteFilesSaveGame(String... paths) throws GameManagerException {
+        try {
+            for (String path : paths) {
+                boolean result = Files.deleteIfExists(Paths.get(path));
+                if (!result) {
+                    throw new GameManagerException("Can't delete file!");
+                }
+            }
+        } catch (IOException e) {
+            throw new GameManagerException(e.getMessage(), e);
+        }
+    }
+
     public void zipFiles(String zipFilePath, String... paths) throws GameManagerException {
         logger.info("Game progress compressing...");
         try (
@@ -243,11 +278,6 @@ public class GameManager {
                     while ((length = fis.read(bytes)) >= 0) {
                         zipOut.write(bytes, 0, length);
                     }
-                }
-
-                boolean result = Files.deleteIfExists(Paths.get(path));
-                if (!result) {
-                    throw new GameManagerException("Can't delete file!");
                 }
             }
 

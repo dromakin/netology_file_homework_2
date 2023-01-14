@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 
 import java.nio.file.Files;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GameManagerTest {
@@ -30,6 +31,13 @@ class GameManagerTest {
     @org.junit.jupiter.api.Test
     void saveGame() {
         assertTrue(Files.exists(this.gameManager.getGamePath()));
+    }
+
+    @org.junit.jupiter.api.Test
+    void deleteFilesSaveGame() throws GameManagerException {
+        assertTrue(Files.exists(this.gameManager.getFileSavePath()));
+        this.gameManager.deleteFilesSaveGame(this.gameManager.getFileSavePathString());
+        assertFalse(Files.exists(this.gameManager.getFileSavePath()));
     }
 
     @org.junit.jupiter.api.Test
